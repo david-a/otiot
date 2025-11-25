@@ -191,7 +191,8 @@
       await playAudioForText(currentWord.nikud);
     }
 
-    await playAudioForText('כל הכבוד!');
+    // Wait for word audio to finish, then play celebration message
+    await playAudioForText('כל הכבוד!', false);
 
     updateProgress({
       totalScore,
@@ -200,7 +201,8 @@
     });
 
     if (completedInLevel >= wordsRequiredPerLevel) {
-      await playAudioForText('עלית רמה! כל הכבוד!');
+      // Wait for previous message to finish, then play level up message
+      await playAudioForText('עלית רמה! כל הכבוד!', false);
       showCelebration = true;
     } else {
       setTimeout(() => loadNextWord(currentWord?.id), 1200);
