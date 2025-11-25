@@ -1,0 +1,27 @@
+backend:
+  name: github
+  # Replace with your GitHub repo, e.g. your-username/otiot
+  repo: your-username/otiot
+  branch: main
+
+media_folder: static/uploads
+public_folder: /uploads
+
+collections:
+  # Main game words collection – managed as JSON for easy loading in SvelteKit
+  - name: words
+    label: מילים
+    label_singular: מילה
+    folder: content/words
+    create: true
+    format: json
+    extension: json
+    slug: "{{slug}}"
+    fields:
+      - { name: word, label: "מילה (ללא ניקוד)", widget: string }
+      - { name: nikud, label: "מילה מנוקדת", widget: string }
+      - { name: image, label: "תמונה", widget: image }
+      - { name: sound, label: "קובץ שמע (אופציונלי)", widget: file, required: false }
+      - { name: level, label: "רמה", widget: number, value_type: int, min: 1, max: 4, default: 1 }
+
+

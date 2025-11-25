@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "target": "ESNext",
+    "module": "ESNext",
+    "strict": true,
+    "allowImportingTsExtensions": true,
+    "baseUrl": ".",
+     "types": ["svelte", "vite/client"],
+    "paths": {
+      "$lib/*": ["src/lib/*"]
+    }
+  },
+  "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.svelte"]
+}
+
+
+
