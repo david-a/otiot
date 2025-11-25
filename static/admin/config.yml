@@ -18,7 +18,6 @@ collections:
     extension: json
     slug: "{{slug}}"
     fields:
-      - { name: word, label: "מילה (ללא ניקוד)", widget: string }
       - { name: nikud, label: "מילה מנוקדת", widget: string }
       - { name: image, label: "תמונה", widget: image }
       - { name: sound, label: "קובץ שמע (אופציונלי)", widget: file, required: false }

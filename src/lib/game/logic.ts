@@ -309,4 +309,10 @@ export const normalizeHebrewText = (text: string): string => {
     .join('');
 };
 
+// Remove nikud (Hebrew combining marks) from a pointed word to get the plain form
+export const deriveWordFromNikud = (nikudWord: string): string => {
+  // Hebrew combining marks: U+0591–U+05C7
+  return nikudWord.replace(/[\u0591-\u05C7]/g, '');
+};
+
 

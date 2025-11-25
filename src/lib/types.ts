@@ -1,8 +1,6 @@
 export interface Word {
   /** Stable id derived from filename/slug */
   id: string;
-  /** Word without nikud – for display in some contexts */
-  word: string;
   /** Fully pointed word (with nikud) used in the game */
   nikud: string;
   /** Public URL to an image under /static or a remote URL */

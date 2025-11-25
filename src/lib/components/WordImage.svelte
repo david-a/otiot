@@ -1,5 +1,6 @@
 <script lang="ts">
   import { playAudioForText, playAudioFromUrl } from "$lib/audio";
+  import { deriveWordFromNikud } from "$lib/game/logic";
   import type { Word } from "$lib/types";
 
   export let word: Word;
@@ -18,7 +19,7 @@
 <button class="card" type="button" on:click|preventDefault={handlePlay}>
   <div class="image-wrap">
     {#if word.imageUrl}
-      <img src={word.imageUrl} alt={word.word} />
+      <img src={word.imageUrl} alt={deriveWordFromNikud(word.nikud)} />
     {:else}
       <div class="placeholder">?</div>
     {/if}
