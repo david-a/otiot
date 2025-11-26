@@ -18,17 +18,6 @@ const config = {
     // For subdirectory (username.github.io/repo-name), set to '/repo-name'
     paths: {
       base: process.env.BASE_PATH || ''
-    },
-    prerender: {
-      entries: ['*', '/admin/config.yml'],
-      handleUnseenRoutes: ({ path }) => {
-        // Allow /admin/config.yml to be prerendered even if not discovered during crawling
-        if (path && path.includes('/admin/config.yml')) {
-          return 'prerender';
-        }
-        // For other unseen routes, use default behavior (fail)
-        return 'fail';
-      }
     }
   }
 };
