@@ -19,10 +19,28 @@ collections:
     format: json
     extension: json
     slug: "{{slug}}"
+    identifier_field: word # Use 'word' field as the unique identifier
     fields:
-      - { name: nikud, label: "מילה מנוקדת", widget: string }
-      - { name: image, label: "תמונה", widget: image }
-      - { name: sound, label: "קובץ שמע (אופציונלי)", widget: file, required: false }
-      - { name: level, label: "רמה", widget: number, value_type: int, min: 1, max: 4, default: 1 }
-
-
+      - {
+          name: word,
+          label: "מילה (ללא ניקוד)",
+          widget: string,
+          required: true,
+        }
+      - { name: nikud, label: "מילה מנוקדת", widget: string, required: true }
+      - { name: image, label: "תמונה", widget: image, required: true }
+      - {
+          name: sound,
+          label: "קובץ שמע (אופציונלי)",
+          widget: file,
+          required: false,
+        }
+      - {
+          name: level,
+          label: "רמה",
+          widget: number,
+          value_type: int,
+          min: 1,
+          max: 4,
+          default: 1,
+        }

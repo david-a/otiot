@@ -279,9 +279,22 @@ The auth worker acts as a proxy between Sveltia CMS and GitHub's API, handling O
   - For organization repos, check repository access settings
 
 - **Worker deployment fails**:
+
   - Ensure you're logged in: `wrangler login`
   - Check that `wrangler.toml` is properly configured
   - Verify all required secrets are set
+
+- **"No data" error after authentication**:
+  - **Collection fields must match JSON structure**: Ensure all fields in your `config.yml` collections match the actual fields in your JSON files. For example, if your JSON has a `word` field, it must be included in the `fields` list in `config.yml`
+  - **Missing `identifier_field`**: For JSON collections, add `identifier_field: word` (or whichever field uniquely identifies each entry) to help Sveltia CMS identify entries
+  - **Verify repository and branch**: Double-check that `repo` and `branch` in `config.yml` match your actual GitHub repository and the secrets in your Cloudflare Worker (`GITHUB_REPO` and `GITHUB_BRANCH`)
+  - **Check folder path**: Ensure the `folder` path in the collection matches where your files actually are (e.g., `content/words`)
+  - **Verify config file is accessible**: Open `https://your-site.com/admin/config.yml` in a browser to ensure it's publicly accessible. If it's not, check your static file serving configuration
+  - **Check browser console**: Open browser DevTools (F12) → Console tab and look for specific error messages
+  - **Verify file format**: Ensure your JSON files are valid JSON and match the collection's `format: json` setting
+  - **Test GitHub API access**: Verify that the authenticated user can access the repository via GitHub API. You can test this by visiting: `https://api.github.com/repos/your-username/otiot/contents/content/words` (replace with your repo)
+  - **Check auth worker logs**: In Cloudflare Workers dashboard, check the logs for your auth worker to see if there are any errors when fetching data
+  - **Verify base_url format**: Ensure `base_url` in `config.yml` doesn't have a trailing slash (should be `https://worker.workers.dev` not `https://worker.workers.dev/`)
 
 #### Alternative: Using Netlify Identity (if deploying to Netlify)
 
