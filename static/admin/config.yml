@@ -19,7 +19,6 @@ collections:
     format: json
     extension: json
     slug: "{{slug}}"
-    identifier_field: word # Use 'word' field as the unique identifier
     fields:
       - {
           name: word,

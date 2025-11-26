@@ -11,7 +11,9 @@ export const GET: RequestHandler = async () => {
 
   return new Response(config, {
     headers: {
-      "Content-Type": "text/yaml",
+      "Content-Type": "text/yaml; charset=utf-8",
+      "Access-Control-Allow-Origin": "*",
+      "Cache-Control": "no-cache",
     },
   });
 };
