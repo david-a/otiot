@@ -1,8 +1,10 @@
 backend:
   name: github
   # Replace with your GitHub repo, e.g. your-username/otiot
-  repo: your-username/otiot
+  repo: david-a/otiot
   branch: main
+  base_url: https://otiot-cms-auth.david-avikasis.workers.dev # Your Cloudflare Worker URL
+  auth_endpoint: auth # Relative path to auth endpoint
 
 media_folder: static/uploads
 public_folder: /uploads

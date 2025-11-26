@@ -99,17 +99,197 @@ Each word is stored as a JSON file under `content/words/` and is loaded at build
 
 ### 2. GitHub OAuth + auth proxy (production)
 
-For authenticated editing in production you need GitHub OAuth plus an auth proxy, as recommended in the Sveltia docs and example setups:
+For authenticated editing in production you need GitHub OAuth plus an auth proxy, as recommended in the Sveltia docs and example setups.
 
-1. **Create a GitHub OAuth App**:
+#### Step 1: Create a GitHub OAuth App
 
-   - **Homepage URL**: your deployed site URL (e.g. `https://otiot.example.com`)
-   - **Authorization callback URL**: the URL of your auth proxy (see next step)
+1. **Go to GitHub Settings**:
 
-2. **Deploy the Sveltia auth worker**:
-   - Use the [`sveltia-cms-auth` Cloudflare Worker](https://github.com/sveltia/sveltia-cms-auth)
-   - Configure it with your GitHub Client ID/Secret and repo settings
-   - Point the OAuth callback to the worker
+   - Navigate to: https://github.com/settings/developers
+   - Or: Your Profile → Settings → Developer settings → OAuth Apps
+
+2. **Create a new OAuth App**:
+
+   - Click **"New OAuth App"** (or **"Register a new application"**)
+   - Fill in the form:
+     - **Application name**: `Otiot CMS` (or any descriptive name)
+     - **Homepage URL**: Your deployed site URL
+       - Example: `https://your-username.github.io/otiot/`
+       - Or: `https://otiot.example.com` (if using a custom domain)
+     - **Authorization callback URL**: **Leave this blank for now** — you'll set it after deploying the auth worker
+       - It will be something like: `https://your-auth-worker.your-subdomain.workers.dev/auth`
+     - **Application description** (optional): `Content management for Otiot Hebrew reading game`
+
+3. **Register the application**:
+
+   - Click **"Register application"**
+   - You'll be redirected to the app's settings page
+
+4. **Generate a Client Secret**:
+   - On the app settings page, click **"Generate a new client secret"**
+   - **Important**: Copy both the **Client ID** and **Client Secret** immediately
+     - The Client Secret will only be shown once
+     - Store them securely (you'll need them for the auth worker)
+
+#### Step 2: Deploy the Sveltia Auth Worker (Cloudflare Worker)
+
+The auth worker acts as a proxy between Sveltia CMS and GitHub's API, handling OAuth authentication securely.
+
+1. **Clone or download the auth worker**:
+
+   ```bash
+   git clone https://github.com/sveltia/sveltia-cms-auth.git
+   cd sveltia-cms-auth
+   ```
+
+2. **Install Cloudflare Wrangler CLI** (if not already installed):
+
+   ```bash
+   npm install -g wrangler
+   # Or with pnpm:
+   pnpm add -g wrangler
+   ```
+
+3. **Authenticate with Cloudflare**:
+
+   ```bash
+   wrangler login
+   ```
+
+   - This will open a browser window to authorize Wrangler with your Cloudflare account
+
+4. **Configure the worker**:
+
+   - Edit `wrangler.toml` in the `sveltia-cms-auth` directory
+   - Set your worker name (must be unique across Cloudflare):
+     ```toml
+     name = "otiot-cms-auth"  # Change to something unique
+     ```
+   - Or create a new `wrangler.toml` with:
+     ```toml
+     name = "otiot-cms-auth"
+     main = "src/index.ts"
+     compatibility_date = "2024-01-01"
+     ```
+
+5. **Set environment variables** (secrets):
+
+   ```bash
+   wrangler secret put GITHUB_CLIENT_ID
+   # When prompted, paste your GitHub OAuth Client ID
+
+   wrangler secret put GITHUB_CLIENT_SECRET
+   # When prompted, paste your GitHub OAuth Client Secret
+
+   wrangler secret put GITHUB_REPO
+   # When prompted, enter: your-username/otiot (or your actual repo)
+
+   wrangler secret put GITHUB_BRANCH
+   # When prompted, enter: main (or your default branch)
+   ```
+
+6. **Deploy the worker**:
+   ```bash
+   wrangler deploy
+   ```
+   - After deployment, you'll get a URL like: `https://otiot-cms-auth.your-subdomain.workers.dev`
+   - **Copy this URL** — you'll need it for the next steps
+
+#### Step 3: Update GitHub OAuth App Callback URL
+
+1. **Go back to your GitHub OAuth App settings**:
+
+   - https://github.com/settings/developers → Your OAuth App
+
+2. **Update the Authorization callback URL**:
+   - Set it to: `https://your-worker-url.workers.dev/auth`
+   - Example: `https://otiot-cms-auth.your-subdomain.workers.dev/auth`
+   - Click **"Update application"**
+
+#### Step 4: Configure Sveltia CMS to Use the Auth Worker
+
+1. **Update `static/admin/config.yml`**:
+
+   ```yaml
+   backend:
+     name: github
+     repo: your-username/otiot # Replace with your actual repo
+     branch: main
+     base_url: https://your-worker-url.workers.dev # Your Cloudflare Worker URL
+     auth_endpoint: auth # Relative path to auth endpoint
+   ```
+
+   Example:
+
+   ```yaml
+   backend:
+     name: github
+     repo: deddy/otiot
+     branch: main
+     base_url: https://otiot-cms-auth.your-subdomain.workers.dev
+     auth_endpoint: auth
+   ```
+
+2. **Ensure your GitHub token has write access**:
+   - The auth worker will request GitHub OAuth permissions
+   - Users logging into `/admin` must have write access to the repository
+   - For a personal repo, you'll automatically have access
+   - For an organization repo, ensure the user is a collaborator with write permissions
+
+#### Step 5: Test the Setup
+
+1. **Deploy your site** (if not already deployed):
+
+   - Build and deploy your SvelteKit app to your hosting platform
+   - Ensure `/admin` is accessible
+
+2. **Access the admin panel**:
+
+   - Navigate to `https://your-deployed-site/admin/`
+   - You should see a **"Login with GitHub"** button
+
+3. **Authenticate**:
+
+   - Click **"Login with GitHub"**
+   - You'll be redirected to GitHub to authorize the OAuth app
+   - After authorization, you'll be redirected back to `/admin`
+   - You should now be able to edit words, upload images, etc.
+
+4. **Verify commits**:
+   - Make a test edit (e.g., add a new word or update an existing one)
+   - Click **"Save"** or **"Publish"**
+   - Check your GitHub repository — you should see a new commit with your changes
+
+#### Troubleshooting
+
+- **"Failed to authenticate"**:
+
+  - Verify the callback URL in GitHub OAuth App matches your worker URL + `/auth`
+  - Check that all secrets are set correctly in Cloudflare Workers
+  - Ensure the worker URL in `config.yml` matches your deployed worker
+
+- **"Repository not found"**:
+
+  - Verify `GITHUB_REPO` secret matches `your-username/repo-name` format
+  - Ensure the authenticated user has access to the repository
+
+- **"Permission denied"**:
+
+  - The authenticated GitHub user must have write access to the repository
+  - For organization repos, check repository access settings
+
+- **Worker deployment fails**:
+  - Ensure you're logged in: `wrangler login`
+  - Check that `wrangler.toml` is properly configured
+  - Verify all required secrets are set
+
+#### Alternative: Using Netlify Identity (if deploying to Netlify)
+
+If you're deploying to Netlify, you can use Netlify Identity instead of the Cloudflare Worker:
+
+- Enable Netlify Identity in your Netlify site settings
+- Configure the GitHub provider in Netlify Identity
+- Update `config.yml` to use `netlify` backend instead of `github`
 
 Once configured, `/admin` will authenticate against GitHub and commit changes (new words, image uploads, etc.) directly to your repo.
 
