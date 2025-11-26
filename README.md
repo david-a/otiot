@@ -102,6 +102,7 @@ Each word is stored as a JSON file under `content/words/` and is loaded at build
 For authenticated editing in production you need GitHub OAuth plus an auth proxy, as recommended in the Sveltia docs and example setups:
 
 1. **Create a GitHub OAuth App**:
+
    - **Homepage URL**: your deployed site URL (e.g. `https://otiot.example.com`)
    - **Authorization callback URL**: the URL of your auth proxy (see next step)
 
@@ -184,5 +185,3 @@ The app is configured with the **static adapter**, so builds into a static bundl
 - Leaderboard and cross-device sync are intentionally **client-only** in this version to keep the app purely Jamstack; they can be added later via serverless functions or a hosted DB.
 - All core game logic (`src/lib/game/logic.ts`) is framework-agnostic and unit-testable.
 - If you prefer another adapter (Netlify/Vercel), swap it in `svelte.config.js` – everything else stays the same.
-
-
